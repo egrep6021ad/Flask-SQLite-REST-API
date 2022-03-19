@@ -4,6 +4,9 @@ import sqlite3
 from threading import Thread
 import sys
 import datetime
+import os
+
+#from scrap_code import run_scrapping
 
 # Naming convention to wrap the whole app as a flask app
 app = Flask('app')
@@ -30,8 +33,14 @@ def index():
   # render the data in the easy view html 
   return render_template('backendView.html',urls=articles)
 
+@app.route('/test_scrap')
+def test_index():
+  print("test 2")
+  #return run_scrapping("myurl.com")
+
+  
 # End point for POST requests from the front end (front end sending article -> backend)
-@app.route('/postArticle', methods=['GET','POST'],strict_slashes=False)
+@app.route('/postArticle', methods=['POST'],strict_slashes=False)
 def postArticle():
     if request.method == 'POST':
       data = request.get_json(force=True) #Force stops flask from saying json is none- type
@@ -40,6 +49,8 @@ def postArticle():
       print("Data from front-end POST:")
       print(article,file=sys.stderr)
       created = str(datetime.date.today())
+
+      os.system("python scrap_code.py {}".format(article))
       # Open Db cursor
       conn = get_db_connection()
       # Inset data into db
@@ -53,7 +64,20 @@ def postArticle():
       # Render the easy view html
       return render_template('backendView.html')
   
+# GET Endpoint for front -end getting specific articles back
+@app.route('/getArticles', methods=['GET'],strict_slashes=False)
+def getArticles():
 
+  date = "2022-03-18"
+  #date = str(datetime.date.today())
+  
+  conn = get_db_connection()
+  articles = conn.execute("SELECT * FROM urls WHERE created = ? ",(date)).fetchall()
+  print(articles,file=sys.stderr)
+  conn.close()
+  return ("done")
+
+      
 # Run backend application in its own on its port
 def run():
     app.config['TEMPLATES_AUTO_RELOAD'] = True
