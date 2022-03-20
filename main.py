@@ -50,10 +50,11 @@ def postArticle():
       created = str(datetime.date.today())
       value = run_scrap(article)
       print(value)
+      
       # Open Db cursor
       conn = get_db_connection()
       # Inset data into db
-      conn.execute("INSERT INTO urls (url,created) VALUES(?,?)",(article,created ))
+      conn.execute("INSERT INTO urls (url,created,related_1,related_2,related_3,category) VALUES(?,?,?,?,?,?)",(article,created,value[2],value[3],value[4],value[0] ))
       # Push data
       conn.commit()
       # Close cursor
@@ -69,11 +70,13 @@ def getArticles():
   # Get all articles stored today
   date = str(datetime.date.today())
   conn = get_db_connection()
-  articles = conn.execute("SELECT url FROM urls WHERE created = ?",[date]).fetchall()
+  articles = conn.execute("SELECT * FROM urls WHERE ID = (SELECT MAX(ID) FROM urls)").fetchall()
   # Build array of the urls from posts today
   json_return_value = []
   for x in articles:
-    json_return_value.append(str(x['url']))
+    json_return_value.append(str(x['related_1']))
+    json_return_value.append(str(x['related_2']))
+    json_return_value.append(str(x['related_3']))
   # Verify
   print(json_return_value)
   # Close cursor 

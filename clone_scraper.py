@@ -37,26 +37,34 @@ title_tag = ""
 title = ""
 article = ""
 
-
 if( len(domain) > 0 ):
   print( "LENGTH =>" + str( len(domain)) )
   print(domain[0])
 
   #conn = get_db_connection()
-  params = conn.execute("SELECT * FROM scrappingtags WHERE domain_tag = ?", (domain[0])).fetchall()
-  for param in params:
-    #print(param["title_tag"] +" "+ param["article_tag"] )
-    title_tag = param["title_tag"]
-    article_tag = param["article_tag"]
+  params = conn.execute("SELECT * FROM scrappingtags WHERE domain_tag = ?", [domain[0]]).fetchall()
   
-    
-  #Make query according to the domain tags
-  title  = soup.findAll("h1", class_= title_tag )
-  article = soup.find_all("div", class_= article_tag) 
+  if( len(params) >0 ): #DOMAIN IS SUPPORTED 
+    for param in params:
+      #print(param["title_tag"] +" "+ param["article_tag"] )
+      title_tag = param["title_tag"]
+      article_tag = param["article_tag"]
+  
+  
+    #Make query according to the domain tags
+    title  = soup.findAll("h1", class_= title_tag )
+    article = soup.find_all("div", class_= article_tag) 
 
-  #End if
+  else: #DOMAIN IS NOT SUPPORTED 
+    title = "Default title"
+    article = content #Assign the whole page to the article
+    
+    
+#End if
 else:
   article = content
+
+  
 
 #test
 #article = "lorem ipsum sheep dolar si abet cramer loyalism protestantism"
@@ -122,14 +130,21 @@ else:
   results_tab.append(title[0])
   
 
+
+before_suffled = []
+for art in similar_articles:
+  before_suffled.append(art["url"])
+print(before_suffled)
+
+random.shuffle(before_suffled)
+
 res_suffled = []
-random.shuffle(similar_articles)
-res_suffled = similar_articles[:3]
+res_suffled = before_suffled[:3]
 for art in res_suffled:
-  results_tab.append(art["url"])
-  #print(art["url"])
-  
-#print(title)
+  #results_tab.append(art["url"])
+  results_tab.append(art)
+
+print(results_tab)
 
 
 #print("RESULTS")
@@ -140,5 +155,5 @@ conn.close()
 
 
 
-print(results_tab)
+#print(results_tab)
   

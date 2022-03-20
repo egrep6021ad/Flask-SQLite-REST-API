@@ -5,6 +5,11 @@
     {% for url in urls %}
         <div class='post'>
           <h2>{{ url['url'] }}</h2>
+            <h1>{{ url['category'] }}</h1>
+            <h3>{{ url['related_1'] }}</h3>
+            <h3>{{ url['related_2'] }}</h3>
+            <h3>{{ url['related_3'] }}</h3>
+            <h3>{{ url['created'] }}</h3>
 
         </div>
     {% endfor %}

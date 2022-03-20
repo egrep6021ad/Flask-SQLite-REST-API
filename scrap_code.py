@@ -94,10 +94,10 @@ def run_scrap(url):
         #print(row[1])
         if str(row[1]) == 'republican': #space fixed in the csv file
           count_reps = count_reps + 1
-          print("reps:" + str(count_reps))
+          print("reps:" + str(count_reps)) #Moved print on bottom
         elif str(row[1]) == 'democrat':
-          print("dems:" + str(count_dems))
           count_dems = count_dems + 1
+          print("dems:" + str(count_dems)) #Moved print on bottom
   
   #result["bias"] = "nonbiased" #test
   if( count_reps > count_dems):
@@ -126,14 +126,30 @@ def run_scrap(url):
     results_tab.append("Default title")
   else:
     results_tab.append(title[0])
-    
-  res_suffled = []
-  random.shuffle(similar_articles)
-  res_suffled = similar_articles[:3]
-  for art in res_suffled:
-    results_tab.append(art["url"])
+
+  ##OLD CODE
+  #res_suffled = []
+  #random.shuffle(similar_articles)
+  #res_suffled = similar_articles[:3]
+  #for art in res_suffled:
+  #  results_tab.append(art["url"])
     #print(art["url"])
-    
+  #END OLD CODE 
+
+  #NEW random
+  before_suffled = []
+  for art in similar_articles:
+    before_suffled.append(art["url"])
+  #print(before_suffled)
+  
+  random.shuffle(before_suffled)
+  
+  res_suffled = []
+  res_suffled = before_suffled[:3]
+  for art in res_suffled:
+    #results_tab.append(art["url"])
+    results_tab.append(art)
+  #END NEW RANDOM
   #print(title)
   
   

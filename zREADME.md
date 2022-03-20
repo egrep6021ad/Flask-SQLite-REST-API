@@ -12,3 +12,8 @@ When a domain is not supported * we need a default
 Front end:
 
 needs to 
+
+
+LINKS
+#Non biased 
+https://www.nytimes.com/2022/03/20/us/ketanji-brown-jackson-republicans.html
