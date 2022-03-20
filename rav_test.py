@@ -1,23 +1,16 @@
-from selenium import webdriver
-from BeautifulSoup import BeautifulSoup
-import pandas as pd
 
-driver = webdriver.Chrome("/usr/lib/chromium-browser/chromedriver")
+#Run a counter
+import csv
 
-products=[] #List to store name of the product
-prices=[] #List to store price of the product
-ratings=[] #List to store rating of the product
-driver.get("<a href="https://www.flipkart.com/laptops/">https://www.flipkart.com/laptops/</a>~buyback-guarantee-on-laptops-/pr?sid=6bo%2Cb5g&amp;amp;amp;amp;amp;amp;amp;amp;amp;uniq")")
+content = "lorem ipsum dolar si abet cramer loyalism protestantism"
+counts = {}
+counts["republican"] = 0
+with open('classification.csv', mode='r') as csv_file:
+    csv_reader = csv.DictReader(csv_file)
+    line_count = 0
+    for row in csv_reader:
+        if line_count != 0:
+          print(row)
+          counts["republican"] += content.count(row["keyword"])
 
-content = driver.page_source
-soup = BeautifulSoup(content)
-for a in soup.findAll('a',href=True, attrs={'class':'_31qSD5'}):
-name=a.find('div', attrs={'class':'_3wU53n'})
-price=a.find('div', attrs={'class':'_1vC4OE _2rQ-NK'})
-rating=a.find('div', attrs={'class':'hGSR34 _2beYZw'})
-products.append(name.text)
-prices.append(price.text)
-ratings.append(rating.text) 
-
-df = pd.DataFrame({'Product Name':products,'Price':prices,'Rating':ratings}) 
-df.to_csv('products.csv', index=False, encoding='utf-8')
+print(counts)

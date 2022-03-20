@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import sqlite3
 from threading import Thread
@@ -38,7 +38,6 @@ def test_index():
   print("test 2")
   #return run_scrapping("myurl.com")
 
-  
 # End point for POST requests from the front end (front end sending article -> backend)
 @app.route('/postArticle', methods=['POST'],strict_slashes=False)
 def postArticle():
@@ -50,7 +49,7 @@ def postArticle():
       print(article,file=sys.stderr)
       created = str(datetime.date.today())
 
-      os.system("python scrap_code.py {}".format(article))
+     # os.system("python scrap_code.py {}".format(article))
       # Open Db cursor
       conn = get_db_connection()
       # Inset data into db
@@ -64,20 +63,24 @@ def postArticle():
       # Render the easy view html
       return render_template('backendView.html')
   
-# GET Endpoint for front -end getting specific articles back
+# GET Endpoint for front-end to get specific articles back
 @app.route('/getArticles', methods=['GET'],strict_slashes=False)
 def getArticles():
-
-  date = "2022-03-18"
-  #date = str(datetime.date.today())
-  
+  # Get all articles stored today
+  date = str(datetime.date.today())
   conn = get_db_connection()
-  articles = conn.execute("SELECT * FROM urls WHERE created = ? ",(date)).fetchall()
-  print(articles,file=sys.stderr)
+  articles = conn.execute("SELECT url FROM urls WHERE created = ?",[date]).fetchall()
+  # Build array of the urls from posts today
+  json_return_value = []
+  for x in articles:
+    json_return_value.append(str(x['url']))
+  # Verify
+  print(json_return_value)
+  # Close cursor 
   conn.close()
-  return ("done")
+  # Return array of url's
+  return (jsonify(json_return_value))
 
-      
 # Run backend application in its own on its port
 def run():
     app.config['TEMPLATES_AUTO_RELOAD'] = True

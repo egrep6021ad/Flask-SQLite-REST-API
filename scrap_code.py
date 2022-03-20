@@ -4,31 +4,90 @@ import pandas as pd
 import re #Regex import
 import requests
 import sys
+import sqlite3
+import csv
 #from seleniumrequests import Firefox
 #@app.route('/scrapper/<url>')
 #print(str(sys.argv))
 
+# Init. the cursor to interact with the database
+def get_db_connection():
+    # connects to the executable sql
+    conn = sqlite3.connect('database_back.db')
+    conn.row_factory = sqlite3.Row
+    return conn
+  
+
 url = sys.argv[1]
   
-  # api-endpoint
-  url_test = "https://www.cnn.com/2022/03/16/tech/instagram-parent-controls/index.html"
-    
-  # sending get request and saving the response as response object
-  res = requests.get(url_test)
-  content = res.content
-
-  soup = bs.BeautifulSoup(content, 'html.parser') #lxml for faster speed
-
-  #Get domain params from database
-
-  #Make query according to the domain
-  title  = soup.findAll("h1", class_="pg-headline")
-  article = soup.find_all("div", class_="pg-side-of-rail pg-rail-tall__side") 
-
-  print(title)
-  #print(article)
+# api-endpoint
+#url_test = "https://www.cnn.com/2022/03/16/tech/instagram-parent-controls/index.html"
   
-  return '<h1>Scrap running! ' + url + ' </h1> <p> </p>'
+# sending get request and saving the response as response object
+res = requests.get(url)
+content = res.content
+
+soup = bs.BeautifulSoup(content, 'html.parser') #lxml for faster speed
+
+#Get domain from the url
+domain = re.findall('://www.([\w\-\.]+)', url)
+print(domain[0])
+
+##Get the params from the url
+#default params
+title_tag = ""
+article = ""
+
+conn = get_db_connection()
+params = conn.execute("SELECT * FROM scrappingtags WHERE domain_tag = ?", (domain) ).fetchall()
+for param in params:
+  print(param["title_tag"] +" "+ param["article_tag"] )
+  title_tag = param["title_tag"]
+  article_tag = param["article_tag"]
+
+  
+#Make query according to the domain tags
+title  = soup.findAll("h1", class_= title_tag )
+article = soup.find_all("div", class_= article_tag) 
+
+result = {}
+result["title"] = title
+result["article"] = article
+
+#Evaluating the article
+counts = {}
+counts["republican"] = 0
+counts["democrat"] = 0
+
+with open('classification.csv') as csv_file:
+  csv_reader = csv.reader(csv_file, delimiter=',')
+  line_count = 0
+  for row in csv_reader:
+    if( row[1] == "republican" ):
+      counts["republican"] += content.count(row[0])
+    else:
+      counts["democrat"] += content.count(row[0])
+
+if( counts["republican"] > counts["democrat"] ):
+  result["bias"] = "republican"
+elif( counts["democrat"] > counts["republican"] ):
+  result["bias"] = "democrat"
+else:
+  result["bias"] = "none"
+
+#Get 3 similars articles
+similar_articles = conn.execute("SELECT * FORM urls_back WHERE classification = ?", (result["bias"]) ).fetchall()
+
+
+print(title)
+print(similar_articles)
+
+conn.commit()
+conn.close()
+
+#print(result)
+
+#return result
 
 
 #run_scrapping("mysecond.com")
