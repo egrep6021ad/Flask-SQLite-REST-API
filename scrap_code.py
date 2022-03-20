@@ -27,6 +27,8 @@ url = sys.argv[1]
 res = requests.get(url)
 content = res.content
 
+print(content)
+
 soup = bs.BeautifulSoup(content, 'html.parser') #lxml for faster speed
 
 #Get domain from the url
@@ -50,6 +52,9 @@ for param in params:
 title  = soup.findAll("h1", class_= title_tag )
 article = soup.find_all("div", class_= article_tag) 
 
+#test
+#article = "lorem ipsum sheep dolar si abet cramer loyalism protestantism"
+
 result = {}
 result["title"] = title
 result["article"] = article
@@ -63,10 +68,10 @@ with open('classification.csv') as csv_file:
   csv_reader = csv.reader(csv_file, delimiter=',')
   line_count = 0
   for row in csv_reader:
-    if( row[1] == "republican" ):
-      counts["republican"] += content.count(row[0])
+    if( row[1] == 'republican' ):
+      counts["republican"] += float(article.count(row[0]))
     else:
-      counts["democrat"] += content.count(row[0])
+      counts["democrat"] += float(article.count(row[0]))
 
 if( counts["republican"] > counts["democrat"] ):
   result["bias"] = "republican"
@@ -76,14 +81,22 @@ else:
   result["bias"] = "none"
 
 #Get 3 similars articles
-similar_articles = conn.execute("SELECT * FORM urls_back WHERE classification = ?", (result["bias"]) ).fetchall()
+similar_articles = conn.execute("SELECT * FROM urls_back WHERE classification = ?", [ result["bias"] ]).fetchall()
 
-
+#print(similar_articles)
+articles_tab = []
+for art in similar_articles:
+  articles_tab.add(art["url"])
+  print(art["url"])
+  
 print(title)
-print(similar_articles)
+print(articles_tab)
 
 conn.commit()
 conn.close()
+
+#Classification - 3 Articles
+
 
 #print(result)
 
