@@ -10,7 +10,7 @@ CREATE TABLE urls_back (
 
 CREATE TABLE scrappingtags(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    domain_tag VARCHAR(200),
+    domain_tag TEXT,
     title_tag TEXT,
     article_tag TEXT
 );

@@ -5,7 +5,7 @@ from threading import Thread
 import sys
 import datetime
 import os
-
+from scrap_code import *
 #from scrap_code import run_scrapping
 
 # Naming convention to wrap the whole app as a flask app
@@ -17,7 +17,7 @@ CORS(app)
 # Init. the cursor to interact with the database
 def get_db_connection():
     # connects to the executable sql
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect('searchHistory.db')
     conn.row_factory = sqlite3.Row
     return conn
   
@@ -48,8 +48,8 @@ def postArticle():
       print("Data from front-end POST:")
       print(article,file=sys.stderr)
       created = str(datetime.date.today())
-
-     # os.system("python scrap_code.py {}".format(article))
+      value = run_scrap(article)
+      print(value)
       # Open Db cursor
       conn = get_db_connection()
       # Inset data into db
@@ -61,7 +61,7 @@ def postArticle():
       # Log sucess Message
       print("exiting without errors!")
       # Render the easy view html
-      return render_template('backendView.html')
+      return jsonify(value)
   
 # GET Endpoint for front-end to get specific articles back
 @app.route('/getArticles', methods=['GET'],strict_slashes=False)
