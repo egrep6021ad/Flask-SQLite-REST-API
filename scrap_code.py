@@ -45,17 +45,24 @@ def run_scrap(url):
   
     #conn = get_db_connection()
     params = conn.execute("SELECT * FROM scrappingtags WHERE domain_tag = ?", [domain[0]]).fetchall()
-    for param in params:
-      #print(param["title_tag"] +" "+ param["article_tag"] )
-      title_tag = param["title_tag"]
-      article_tag = param["article_tag"]
     
+    if( len(params) >0 ): #DOMAIN IS SUPPORTED 
+      for param in params:
+        #print(param["title_tag"] +" "+ param["article_tag"] )
+        title_tag = param["title_tag"]
+        article_tag = param["article_tag"]
+    
+    
+      #Make query according to the domain tags
+      title  = soup.findAll("h1", class_= title_tag )
+      article = soup.find_all("div", class_= article_tag) 
+
+    else: #DOMAIN IS NOT SUPPORTED 
+      title = "Default title"
+      article = content #Assign the whole page to the article
       
-    #Make query according to the domain tags
-    title  = soup.findAll("h1", class_= title_tag )
-    article = soup.find_all("div", class_= article_tag) 
-  
-    #End if
+      
+  #End if
   else:
     article = content
 
